@@ -49,11 +49,10 @@ arch_load_gdt:
 	mov fs, ax
 	mov gs, ax
 	mov ss, ax
+	pop rax
 	push 0x08
-	push .trampoline
-	retq
-.trampoline:
-	ret
+	push rax
+	retfq
 
 global arch_load_idt
 arch_load_idt:

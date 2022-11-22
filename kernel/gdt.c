@@ -10,7 +10,7 @@ gdt_entry_t global_gdt_entries[] = {
 };
 
 gdt_t global_gdt = {
-    .base = (uint64_t) &global_gdt_entries,
+    .base = &global_gdt_entries,
     .limit = sizeof(global_gdt_entries) - 1
 };
 
