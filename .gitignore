@@ -1,0 +1,6 @@
+vmgix
+boot.img
+log.txt
+
+*.o
+*.d
