@@ -1,6 +1,6 @@
-vmgix
-boot.img
-log.txt
-
+*.elf
+*.img
 *.o
 *.d
+
+log.txt

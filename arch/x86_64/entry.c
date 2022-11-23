@@ -7,6 +7,11 @@
 #include "main.h"
 #include "serial.h"
 
+static volatile struct limine_memmap_request memmap_request = {
+    .id = LIMINE_MEMMAP_REQUEST,
+    .revision = 0
+};
+
 void _start(void) {
     // early debugging
     serial_init();

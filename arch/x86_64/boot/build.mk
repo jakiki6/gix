@@ -1,7 +1,4 @@
-.PHONY: all
-all: ../boot.img
-
-../boot.img:
+boot.img: $(KERNEL) arch/$(ARCH)/boot/limine.cfg
 	rm -f $@
 	dd if=/dev/zero bs=1M count=0 seek=64 of=$@
 	parted -s $@ mklabel gpt
@@ -13,13 +10,9 @@ all: ../boot.img
 	mkdir -p img_mount
 	sudo mount `cat loopback_dev`p1 img_mount
 	sudo mkdir -p img_mount/EFI/BOOT
-	sudo cp -v ../vmgix limine.cfg ../thirdparty/limine/limine.sys img_mount/
-	sudo cp -v ../thirdparty/limine/BOOTX64.EFI img_mount/EFI/BOOT/
+	sudo cp -v $< arch/$(ARCH)/boot/limine.cfg thirdparty/limine/limine.sys img_mount/
+	sudo cp -v thirdparty/limine/BOOTX64.EFI img_mount/EFI/BOOT/
 	sync
 	sudo umount img_mount
 	sudo losetup -d `cat loopback_dev`
 	rm -rf loopback_dev img_mount
-
-.PHONY: clean
-clean:
-	rm -rf iso_root
