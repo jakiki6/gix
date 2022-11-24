@@ -2,12 +2,12 @@
 
 #include "arch.h"
 #include "gdt.h"
-#include "mm.h"
+#include "mm_init.h"
 
 void kmain() {
     init_gdt();
 
     init_mm();
 
-    printk("initialized GDT and IDT\n");
+    printk("gdt: initialized GDT\n");
 }
