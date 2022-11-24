@@ -1,5 +1,5 @@
 target remote localhost:1234
-file vmgix
+file kernel.elf
 
 hbreak kmain
 continue

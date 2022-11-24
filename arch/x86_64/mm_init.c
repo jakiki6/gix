@@ -55,4 +55,6 @@ void init_mm() {
            SET_BIT(mm_free_bitmap + (entry->base >> 15) + (entry->length >> 15) + 1, j);
        }
     }
+
+    memset(mm_free_bitmap, 0xff, needed_bytes);
 }

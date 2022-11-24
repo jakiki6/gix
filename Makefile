@@ -12,6 +12,9 @@ LDFLAGS=-nostdlib -static
 .PHONY: all
 all: $(ARCH)_run
 
+.PHONY: debug
+debug: $(ARCH)_debug
+
 .PHONY: clean
 clean: $(ARCH)_clean
 	rm -f $(KERNEL)

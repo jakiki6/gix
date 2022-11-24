@@ -34,6 +34,12 @@ include arch/$(ARCH)/boot/build.mk
 $(ARCH)_run: boot.img
 	qemu-system-x86_64 -hda $< -m 2G -no-reboot -serial stdio
 
+.PHONY: $(ARCH)_debug
+$(ARCH)_debug: boot.img
+	qemu-system-x86_64 -hda $< -m 2G -no-reboot -serial stdio -s -S &
+	gdb -x debug.gdb
+	killall qemu-system-x86_64
+
 # Remove object files and the final executable.
 .PHONY: $(ARCH)_clean
 $(ARCH)_clean:
