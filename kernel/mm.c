@@ -23,7 +23,7 @@ void *mm_alloc_pages(uint64_t count) {
                    CLR_BIT(mm_free_bitmap, i);
 	       }
 
-               last_page = page;
+               last_page = page + count;
 	       return (void *) (page << 12);
 	   }
        } else {
