@@ -1,6 +1,7 @@
 // see https://gist.github.com/NunoLava1998/3f0bcb3d035015a4db2aa4722a99a7d4
 
 #include <stddef.h>
+#include <printk.h>
 
 void* memmove(void* dstptr, const void* srcptr, uint64_t size) {
     unsigned char* dst = (unsigned char*) dstptr;

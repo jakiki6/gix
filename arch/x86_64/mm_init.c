@@ -8,6 +8,18 @@
 #include "mm.h"
 #include "mm_init.h"
 
+static char *mem_types[] = {
+    "usable",
+    "reserved",
+    "acpi reclaimable",
+    "acpi nvs",
+    "bad",
+    "bootloader reclaimable",
+    "kernel",
+    "framebuffer",
+    "unknown"
+};
+
 static volatile struct limine_memmap_request memmap_request = {
     .id = LIMINE_MEMMAP_REQUEST,
     .revision = 0
@@ -16,7 +28,13 @@ static volatile struct limine_memmap_request memmap_request = {
 void init_mm() {
     uint64_t highest_address = 0;
 
+    printk("memory map:\n");
     struct limine_memmap_entry *entry = *memmap_request.response->entries;
+    for (uint64_t i = 0; i < memmap_request.response->entry_count; entry++, i++) {
+        printk("    addr 0x%llx len 0x%llx type '%s'\n", entry->base, entry->length, entry->type < 8 ? mem_types[entry->type] : mem_types[8]);
+    }
+
+    entry = *memmap_request.response->entries;
     for (uint64_t i = 0; i < memmap_request.response->entry_count; entry++, i++) {
         if (entry->type == LIMINE_MEMMAP_USABLE && (entry->base + entry->length) > highest_address) {
             highest_address = entry->base + entry->length;
@@ -29,7 +47,7 @@ void init_mm() {
     uint64_t needed_bytes = highest_address >> 15;
     entry = *memmap_request.response->entries;
     for (uint64_t i = 0; i < memmap_request.response->entry_count; entry++, i++) {
-        if(entry->type != LIMINE_MEMMAP_USABLE && entry->length < needed_bytes) {
+        if(entry->type != LIMINE_MEMMAP_USABLE || entry->length < needed_bytes) {
             continue;
 	}
 
@@ -50,11 +68,8 @@ void init_mm() {
 
     entry = *memmap_request.response->entries;
     for (uint64_t i = 0; i < memmap_request.response->entry_count; entry++, i++) {
-       memset(mm_free_bitmap + (entry->base >> 15), 0xff, entry->length >> 15);
-       for (uint64_t j = 0; j < ((entry->length >> 12) & 0b111); j++) {
-           SET_BIT(mm_free_bitmap + (entry->base >> 15) + (entry->length >> 15) + 1, j);
+       for (uint64_t j = entry->base >> 12; j < (entry->length >> 12); j++) {
+           SET_BIT(mm_free_bitmap, j);
        }
     }
-
-    memset(mm_free_bitmap, 0xff, needed_bytes);
 }

@@ -5,7 +5,7 @@
 
 #include "mm.h"
 
-void *mm_free_bitmap;
+uint8_t *mm_free_bitmap;
 uint64_t mm_max_page;
 static uint64_t last_page = 0;
 
@@ -18,7 +18,7 @@ void *mm_alloc_pages(uint64_t count) {
            left--;
 
 	   if (left == 0) {
-               page = page - count;
+               page = page - count + 1;
                for (uint64_t i = page; i < page + count; i++) {
                    CLR_BIT(mm_free_bitmap, i);
 	       }
@@ -31,7 +31,6 @@ void *mm_alloc_pages(uint64_t count) {
        }
 
        page++;
-
        if (page >= mm_max_page) {
            page = 0;
 	   left = count;

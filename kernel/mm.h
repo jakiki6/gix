@@ -2,7 +2,7 @@
 
 #include <stdint.h>
 
-extern void *mm_free_bitmap;
+extern uint8_t *mm_free_bitmap;
 extern uint64_t mm_max_page;
 
 typedef struct {

@@ -8,9 +8,9 @@
 #define CREATE(x) ((x *) kcalloc(sizeof(x)))
 #define ARRAY_LENGTH(x) (sizeof(x) / sizeof(x[0]))
 
-#define SET_BIT(x, b) *((uint8_t *) x) = *((uint8_t *) x) | (1 << b)
-#define CLR_BIT(x, b) *((uint8_t *) x) = *((uint8_t *) x) & ~(1 << b)
-#define GET_BIT(x, b) ((*((uint8_t *) x) >> b) & 1)
+#define SET_BIT(x, b) ((uint8_t *) x)[b >> 3] = ((uint8_t *) x)[b >> 3] | (1 << (b & 0b111))
+#define CLR_BIT(x, b) ((uint8_t *) x)[b >> 3] = ((uint8_t *) x)[b >> 3] & ~(1 << (b & 0b111))
+#define GET_BIT(x, b) (((uint8_t *) x)[b >> 3] & (1 << (b & 0b111)))
 
 #define MEM_OFFSET 0xffffffff80000000
 
