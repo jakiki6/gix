@@ -10,9 +10,9 @@
 void _start(void) {
     // early debugging
     serial_init();
-    printk("********************************************************************************\n");
-    printk("gix v0.0.1\n");
+    printk("********************************************************************************");
+    printk("gix v0.0.1");
 
     kmain();
-    panic("reached end of kmain\n");
+    panic("reached end of kmain");
 }

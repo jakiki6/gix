@@ -133,16 +133,6 @@ static inline void _out_null(char character, void* buffer, size_t idx, size_t ma
 }
 
 
-// internal _putchar wrapper
-static inline void _out_char(char character, void* buffer, size_t idx, size_t maxlen)
-{
-  (void)buffer; (void)idx; (void)maxlen;
-  if (character) {
-    _putchar(character);
-  }
-}
-
-
 // internal output function wrapper
 static inline void _out_fct(char character, void* buffer, size_t idx, size_t maxlen)
 {
@@ -847,17 +837,6 @@ static int _vsnprintf(out_fct_type out, char* buffer, const size_t maxlen, const
 
 ///////////////////////////////////////////////////////////////////////////////
 
-int printf_(const char* format, ...)
-{
-  va_list va;
-  va_start(va, format);
-  char buffer[1];
-  const int ret = _vsnprintf(_out_char, buffer, (size_t)-1, format, va);
-  va_end(va);
-  return ret;
-}
-
-
 int sprintf_(char* buffer, const char* format, ...)
 {
   va_list va;
@@ -875,13 +854,6 @@ int snprintf_(char* buffer, size_t count, const char* format, ...)
   const int ret = _vsnprintf(_out_buffer, buffer, count, format, va);
   va_end(va);
   return ret;
-}
-
-
-int vprintf_(const char* format, va_list va)
-{
-  char buffer[1];
-  return _vsnprintf(_out_char, buffer, (size_t)-1, format, va);
 }
 
 

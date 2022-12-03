@@ -1,1 +1,3 @@
-void panic(char *format, ...);
+#pragma once
+
+void panic(char *fmt, ...);

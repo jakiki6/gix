@@ -28,10 +28,10 @@ static volatile struct limine_memmap_request memmap_request = {
 void init_mm() {
     uint64_t highest_address = 0;
 
-    printk("memory map:\n");
+    printk("memory map:");
     struct limine_memmap_entry *entry = *memmap_request.response->entries;
     for (uint64_t i = 0; i < memmap_request.response->entry_count; entry++, i++) {
-        printk("    addr 0x%llx len 0x%llx type '%s'\n", entry->base, entry->length, entry->type < 8 ? mem_types[entry->type] : mem_types[8]);
+        printk("    addr 0x%llx len 0x%llx type '%s'", entry->base, entry->length, entry->type < 8 ? mem_types[entry->type] : mem_types[8]);
     }
 
     entry = *memmap_request.response->entries;
@@ -41,7 +41,7 @@ void init_mm() {
 	}
     }
 
-    printk("mm: highest page: 0x%llx\n", highest_address);
+    printk("mm: highest page: 0x%llx", highest_address);
 
     // 1 bit per page
     uint64_t needed_bytes = highest_address >> 15;
@@ -59,9 +59,9 @@ void init_mm() {
     }
 
     if (mm_free_bitmap == NULL) {
-        panic("mm: bitmap is NULL\n");
+        panic("mm: bitmap is NULL");
     } else {
-        printk("mm: bitmap is at 0x%llx\n", mm_free_bitmap);
+        printk("mm: bitmap is at 0x%llx", mm_free_bitmap);
     }
 
     memset(mm_free_bitmap, 0, needed_bytes);

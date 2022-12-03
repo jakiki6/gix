@@ -1,5 +1,6 @@
 #pragma once
 #include <stdint.h>
+#include <stddef.h>
 
 #define ALIGNED(x) __attribute__((aligned(x)))
 #define PACKED __attribute__((packed))
@@ -14,6 +15,10 @@
 
 #define MEM_OFFSET 0xffffffff80000000
 
-typedef struct list_head {
+struct list_head {
     struct list_head *next
-} list_head_t;
+};
+
+#define LIST_HEAD struct list_head *next,
+#define LIST_NEXT(x) (typeof(x)) x->next
+#define LIST_ITER(x, i) for (typeof(x) i = x; i != NULL; i = i->next)
