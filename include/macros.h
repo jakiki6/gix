@@ -16,9 +16,11 @@
 #define MEM_OFFSET 0xffffffff80000000
 
 struct list_head {
-    struct list_head *next
+    struct list_head *next;
 };
 
 #define LIST_HEAD struct list_head *next,
 #define LIST_NEXT(x) (typeof(x)) x->next
 #define LIST_ITER(x, i) for (typeof(x) i = x; i != NULL; i = i->next)
+
+#define ceil_div(x, y) (((x) % (y)) ? (x) / (y) + 1 : (x) / (y))

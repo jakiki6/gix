@@ -8,12 +8,9 @@ extern uint64_t mm_max_page;
 typedef struct {
     uint16_t size;
     uint16_t count;
-    uint8_t payload[];
+    uint8_t *bitmap;
+    void *area;
 } mm_slab_t;
-
-typedef struct {
-    uint16_t count;
-} mm_pages_t;
 
 enum mm_obj_type {
     PAGES,
