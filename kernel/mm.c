@@ -3,6 +3,7 @@
 #include <string.h>
 #include <macros.h>
 #include <printk.h>
+#include <panic.h>
 
 #include "mm.h"
 
@@ -50,7 +51,7 @@ void mm_free_pages(void *pages, uint64_t count) {
     }
 }
 
-static mm_slab_t *new_slab(uint16_t size, uint16_t count) {
+static mm_slab_t *new_slab(uint64_t size, uint16_t count) {
     mm_slab_t *slab = mm_alloc_pages(1);
     slab->size = size;
     slab->count = count;
@@ -66,11 +67,13 @@ static mm_slab_t *new_slab(uint16_t size, uint16_t count) {
     return slab;
 }
 
+/*
 static void del_slab(mm_slab_t *slab) {
     mm_free_pages(slab->bitmap, ceil_div(slab->count, 4096 * 8));
     mm_free_pages(slab->area, ceil_div(slab->count * slab->size, 4096));
     mm_free_pages(slab, 1);
 }
+*/
 
 static void *alloc_slab(mm_slab_t *slab) {
     for (uint64_t i = 0; i < slab->count; i++) {
@@ -87,18 +90,22 @@ static void free_slab(mm_slab_t *slab, void *ptr) {
     SET_BIT(slab->bitmap, ((uint64_t) ptr - (uint64_t) slab->area) / slab->size);
 }
 
+static void *malloc_big(uint64_t size) {
+    void *ptr = mm_alloc_pages(ceil_div(size, 4096) + 1);
+    if (ptr == NULL) {
+        return ptr;
+    }
+
+    mm_obj_t *obj = ptr + 4096 - sizeof(mm_obj_t);
+    obj->type = PAGES;
+    obj->count_or_slab = ceil_div(size, 4096) + 1;
+
+    return ptr + 4096;
+}
+
 void *malloc(uint64_t size) {
     if (size >= 4096) {
-        void *ptr = mm_alloc_pages(ceil_div(size, 4096) + 1);
-        if (ptr == NULL) {
-            return ptr;
-	}
-
-	mm_obj_t *obj = ptr + 4096 - sizeof(mm_obj_t);
-        obj->type = PAGES;
-	obj->count_or_slab = ceil_div(size, 4096) + 1;
-
-	return ptr + 4096;
+        return malloc_big(size);
     }
 
     // add mm_obj_t right before our object
@@ -111,9 +118,40 @@ void *malloc(uint64_t size) {
     mm_slab_t *slab = slabs[level];
 
     void *ptr = alloc_slab(slab);
+    if (ptr == NULL) {
+        // fallback if slab allocation fails
+        return malloc_big(size);
+    }
+
     mm_obj_t *obj = ptr;
     obj->type = SLAB;
-    obj->count_or_slab = slab;
+    obj->count_or_slab = (uint64_t) slab;
 
     return ptr + sizeof(mm_obj_t);
+}
+
+void free(void *ptr) {
+    if (ptr == NULL) {
+        panic("tried to free NULL pointer");
+    }
+
+    mm_obj_t *obj = ptr - sizeof(mm_obj_t);
+    switch(obj->type) {
+        case PAGES:
+	  mm_free_pages(ptr - 4096, obj->count_or_slab);
+	  break;
+	case SLAB:
+	  free_slab((mm_slab_t *) obj->count_or_slab, ptr);
+	  break;
+	default:
+	  panic("unknown type of slab at 0x%llx: %u", ptr, obj->type);
+    }
+}
+
+void init_mm() {
+    arch_init_mm();
+
+    for (int i = 0; i < 12; i++) {
+        slabs[i] = new_slab(1<<20, 1<<i);
+    }
 }

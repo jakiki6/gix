@@ -7,7 +7,7 @@ extern uint64_t mm_max_page;
 
 typedef struct {
     uint16_t size;
-    uint16_t count;
+    uint64_t count;
     uint8_t *bitmap;
     void *area;
 } mm_slab_t;
@@ -21,3 +21,8 @@ typedef struct {
     enum mm_obj_type type;
     uint64_t count_or_slab;
 } mm_obj_t;
+
+void init_mm();
+
+// shim
+void arch_init_mm();

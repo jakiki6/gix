@@ -1,4 +1,5 @@
 #include <printk.h>
+#include <debug.h>
 
 #include "arch.h"
 
@@ -12,7 +13,7 @@ void panic(char *fmt, ...) {
     vsnprintf((char *) &print_buffer, (size_t) -1, fmt, args);
     va_end(args);
 
-    serial_write_string(&print_buffer);
+    debug_write_line((char *) &print_buffer);
 
     printk("\n********************************************************************************");
 

@@ -2,6 +2,7 @@
 
 #include <printf.h>
 #include <printk.h>
+#include <debug.h>
 #include <macros.h>
 
 void printk(char *fmt, ...) {
@@ -12,5 +13,5 @@ void printk(char *fmt, ...) {
     vsnprintf((char *) &print_buffer, (size_t) -1, fmt, args);
     va_end(args);
 
-    serial_write_line(&print_buffer);
+    debug_write_line((char *) &print_buffer);
 }

@@ -1,4 +1,5 @@
 #include <stdint.h>
+#include <debug.h>
 
 #include "arch.h"
 
@@ -43,4 +44,8 @@ void serial_write_string(char *string) {
 void serial_write_line(char *string) {
     serial_write_string(string);
     serial_write('\n');
+}
+
+void debug_write_line(char *msg) {
+    serial_write_line(msg);
 }

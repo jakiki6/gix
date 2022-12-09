@@ -25,7 +25,7 @@ static volatile struct limine_memmap_request memmap_request = {
     .revision = 0
 };
 
-void init_mm() {
+void arch_init_mm() {
     uint64_t highest_address = 0;
 
     printk("memory map:");
