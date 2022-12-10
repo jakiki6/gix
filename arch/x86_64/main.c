@@ -11,7 +11,7 @@ void kmain() {
     init_mm();
 
     for (int i = 0; i < 10; i++) {
-        void *ptr = malloc(1000000);
+        void *ptr = malloc(10);
         printk("0x%llx", ptr);
 
         free(ptr);

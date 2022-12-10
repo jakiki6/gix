@@ -99,7 +99,7 @@ static void *malloc_big(uint64_t size) {
     mm_obj_t *obj = ptr + 4096 - sizeof(mm_obj_t);
     obj->type = PAGES;
     obj->count_or_slab = ceil_div(size, 4096) + 1;
-
+    
     return ptr + 4096;
 }
 
@@ -152,6 +152,6 @@ void init_mm() {
     arch_init_mm();
 
     for (int i = 0; i < 12; i++) {
-        slabs[i] = new_slab(1<<20, 1<<i);
+        slabs[i] = new_slab(1024, 1<<i);
     }
 }
