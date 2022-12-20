@@ -85,6 +85,10 @@ spinlock_release:
 	lock btr qword [rdi], 0
 	ret
 
+global arch_isr_unused
+arch_isr_unused:
+	ret
+
 section .data
 fake_idt_desc:
 	db 0

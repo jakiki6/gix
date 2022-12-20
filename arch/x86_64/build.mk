@@ -26,7 +26,7 @@ include arch/$(ARCH)/boot/build.mk
 
 .PHONY: $(ARCH)_run
 $(ARCH)_run: boot.img
-	qemu-system-x86_64 -hda $< -m 2G -no-reboot -serial stdio
+	qemu-system-x86_64 -hda $< -m 2G -no-reboot -serial stdio -d int -D log.txt
 
 .PHONY: $(ARCH)_debug
 $(ARCH)_debug: boot.img

@@ -104,7 +104,7 @@ static void *malloc_big(uint64_t size) {
 }
 
 void *malloc(uint64_t size) {
-    if (size >= 4096) {
+    if (size > 2048) {
         return malloc_big(size);
     }
 
