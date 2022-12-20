@@ -19,4 +19,7 @@ void kmain() {
 
         free(ptr);
     }
+
+    printk("causing a pagefault ...\n");
+    *((char *) 0) = 0;
 }

@@ -5,6 +5,7 @@
 #include "arch.h"
 
 idt_t *idt_desc;
+idt_entry_t *idt_entries;
 
 static void bake_entry(idt_entry_t *entry, void *offset, uint16_t selector, uint8_t ist, uint8_t is_trap) {
     entry->offset_15_0 = ((uint64_t) offset) & 0xffff;
@@ -22,8 +23,12 @@ void init_idt() {
 
     idt_entry_t *entry = (idt_entry_t *) idt_desc->base;
     for (int i = 0; i < 256; i++) {
-        bake_entry(entry++, &arch_isr_unused, 0x08, 0, 0);
+        bake_entry(entry++, &arch_int_unused, 0x08, 0, 0);
     }
+
+    idt_entries = (idt_entry_t *) idt_desc->base;
+
+    bake_entry(&idt_entries[0x0e], &arch_isr_trap_pagefault, 0x08, 0, 1);
 
     arch_load_idt(idt_desc);
 }

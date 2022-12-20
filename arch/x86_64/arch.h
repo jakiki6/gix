@@ -51,4 +51,5 @@ void arch_set_data_segments(uint8_t value);
 void spinlock_lock(spinlock_t *lock);
 void spinlock_release(spinlock_t *lock);
 
-void arch_isr_unused();
+void arch_int_unused();
+void arch_isr_trap_pagefault();

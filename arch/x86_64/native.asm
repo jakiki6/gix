@@ -18,6 +18,8 @@ bits 64
 	push r15
 
 	cld
+	xor rax, rax
+	mov rdi, rsp
 %endmacro
 %macro isr_exit 0
 	pop r15
@@ -85,9 +87,18 @@ spinlock_release:
 	lock btr qword [rdi], 0
 	ret
 
-global arch_isr_unused
-arch_isr_unused:
+global arch_int_unused
+arch_int_unused:
 	ret
+
+extern arch_trap_pagefault
+global arch_isr_trap_pagefault
+arch_isr_trap_pagefault:
+	isr_entry
+
+        call arch_trap_pagefault
+
+	isr_exit
 
 section .data
 fake_idt_desc:
