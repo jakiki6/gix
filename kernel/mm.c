@@ -144,7 +144,7 @@ void free(void *ptr) {
 	  free_slab((mm_slab_t *) obj->count_or_slab, ptr);
 	  break;
 	default:
-	  panic("unknown type of slab at 0x%llx: %u", ptr, obj->type);
+	  panic("unknown type of memory object at 0x%llx: %u", ptr, obj->type);
     }
 }
 
