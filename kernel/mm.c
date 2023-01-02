@@ -5,14 +5,16 @@
 #include <printk.h>
 #include <panic.h>
 
+#include <arch_consts.h>
+
 #include "mm.h"
 
 uint8_t *mm_free_bitmap;
 uint64_t mm_max_page;
 static uint64_t last_page = 0;
 
-// page size is 1<<12 so we reserve slabs of size 1<<n for sizes smaller than a page
-static mm_slab_t *slabs[12];
+// page size is 1<<PAGE_SHIFT so we reserve slabs of size 1<<n for sizes smaller than a page
+static mm_slab_t *slabs[PAGE_SHIFT];
 
 void *mm_alloc_pages(uint64_t count) {
    uint64_t left = count;
@@ -29,7 +31,7 @@ void *mm_alloc_pages(uint64_t count) {
 	       }
 
                last_page = page + count;
-	       return (void *) (page << 12);
+	       return (void *) (page << PAGE_SHIFT);
 	   }
        } else {
            left = count;
@@ -46,9 +48,17 @@ void *mm_alloc_pages(uint64_t count) {
 }
 
 void mm_free_pages(void *pages, uint64_t count) {
-    for (uint64_t i = ((uint64_t) pages) >> 12; i < (((uint64_t) pages) >> 12) + count; i++) {
+    for (uint64_t i = ((uint64_t) pages) >> PAGE_SHIFT; i < (((uint64_t) pages) >> PAGE_SHIFT) + count; i++) {
         SET_BIT(mm_free_bitmap, i);
     }
+}
+
+void *malloc_pages(uint64_t count) {
+    return mm_alloc_pages(count);
+}
+
+void free_pages(void *pages, uint64_t count) {
+    mm_free_pages(pages, count);
 }
 
 static mm_slab_t *new_slab(uint64_t size, uint16_t count) {
@@ -56,21 +66,21 @@ static mm_slab_t *new_slab(uint64_t size, uint16_t count) {
     slab->size = size;
     slab->count = count;
 
-    int bitmap_size = ceil_div(count, 4096 * 8);
+    int bitmap_size = ceil_div(count, PAGE_SIZE * 8);
     slab->bitmap = mm_alloc_pages(bitmap_size);
-    memset(slab->bitmap, 0xff, bitmap_size << 12);
+    memset(slab->bitmap, 0xff, bitmap_size << PAGE_SHIFT);
 
-    int area_size = ceil_div(count * size, 4096);
+    int area_size = ceil_div(count * size, PAGE_SIZE);
     slab->area = mm_alloc_pages(area_size);
-    memset(slab->area, 0xcc, area_size << 12);
+    memset(slab->area, 0xcc, area_size << PAGE_SHIFT);
 
     return slab;
 }
 
 /*
 static void del_slab(mm_slab_t *slab) {
-    mm_free_pages(slab->bitmap, ceil_div(slab->count, 4096 * 8));
-    mm_free_pages(slab->area, ceil_div(slab->count * slab->size, 4096));
+    mm_free_pages(slab->bitmap, ceil_div(slab->count, PAGE_SIZE * 8));
+    mm_free_pages(slab->area, ceil_div(slab->count * slab->size, PAGE_SIZE));
     mm_free_pages(slab, 1);
 }
 */
@@ -91,16 +101,16 @@ static void free_slab(mm_slab_t *slab, void *ptr) {
 }
 
 static void *malloc_big(uint64_t size) {
-    void *ptr = mm_alloc_pages(ceil_div(size, 4096) + 1);
+    void *ptr = mm_alloc_pages(ceil_div(size, PAGE_SIZE) + 1);
     if (ptr == NULL) {
         return ptr;
     }
 
-    mm_obj_t *obj = ptr + 4096 - sizeof(mm_obj_t);
+    mm_obj_t *obj = ptr + PAGE_SIZE - sizeof(mm_obj_t);
     obj->type = PAGES;
-    obj->count_or_slab = ceil_div(size, 4096) + 1;
+    obj->count_or_slab = ceil_div(size, PAGE_SIZE) + 1;
     
-    return ptr + 4096;
+    return ptr + PAGE_SIZE;
 }
 
 void *malloc(uint64_t size) {
@@ -138,7 +148,7 @@ void free(void *ptr) {
     mm_obj_t *obj = ptr - sizeof(mm_obj_t);
     switch(obj->type) {
         case PAGES:
-	  mm_free_pages(ptr - 4096, obj->count_or_slab);
+	  mm_free_pages(ptr - PAGE_SIZE, obj->count_or_slab);
 	  break;
 	case SLAB:
 	  free_slab((mm_slab_t *) obj->count_or_slab, ptr);
@@ -151,7 +161,7 @@ void free(void *ptr) {
 void init_mm() {
     arch_init_mm();
 
-    for (int i = 0; i < 12; i++) {
+    for (int i = 0; i < PAGE_SHIFT; i++) {
         slabs[i] = new_slab(1024, 1<<i);
     }
 }

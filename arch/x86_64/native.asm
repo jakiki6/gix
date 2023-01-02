@@ -100,6 +100,23 @@ arch_isr_trap_pagefault:
 
 	isr_exit
 
+global arch_dg
+arch_dg:
+	cld
+	mov rbx, rdi
+	mov rsi, .code
+	mov rdi, 0x10000
+	mov rcx, .size
+	rep movsb
+
+	push 0x10000
+global BRK
+BRK:	equ $
+	ret
+.code:	mov cr3, rbx
+	jmp $
+.size:	equ $ - .code
+
 section .data
 fake_idt_desc:
 	db 0
