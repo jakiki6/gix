@@ -16,13 +16,6 @@ void kmain() {
     // we need malloc for the idt
     init_idt();
 
-    for (int i = 0; i < 10; i++) {
-        void *ptr = malloc(10);
-        printk("0x%llx", ptr);
-
-        free(ptr);
-    }
-
     void *map = paging_map_create();
     printk("paging map is at 0x%llx\n", map);
 
